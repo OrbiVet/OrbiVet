@@ -1,0 +1,17 @@
+# IDEs
+.idea/
+*.iml
+.vscode/
+
+# Java / Gradle
+.gradle/
+**/build/
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# Arquivos locais e credenciais
+.env
+.env.*
+!.env.example
