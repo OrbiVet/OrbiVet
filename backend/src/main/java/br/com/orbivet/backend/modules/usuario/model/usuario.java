@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "usuario")
+@Table(name = "Usuario")
 public class Usuario {
     public Long getId(){return id;}
     public String getNome(){return nome;}
@@ -13,7 +13,7 @@ public class Usuario {
     public String getEmail (){ return email;}
     public void setEmail (String email) {this.email = email;}
     public void setSenhaHash (String senhaHash) {this. senhaHash = senhaHash;}
-    public LocalDateTime getCriadoEm(){return criadoE,;}
+    public LocalDateTime getCriadoEm(){return getCriadoEm;}
 
 
     @Id
@@ -26,8 +26,15 @@ public class Usuario {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(name = "senha_hash", nullable = false)
-    private String senhaHash;
+    @Column(name = "criado_em", nullable = false, atualizável = false)
+    private LocalDateTime criadoEm;
+
+    @PrePersist
+    protected void onCreate() {
+        this.criadoEm = LocalDateTime.now();
+    }`
+
+
 
 
 }
