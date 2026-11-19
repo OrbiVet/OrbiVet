@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+@theme {
+  /* Fontes */
+  --font-sans: "Hanken Grotesk", system-ui, sans-serif;
+  --font-number: "Sofia Sans Condensed", sans-serif;
+  --font-tag: "Sofia Sans Extra Condensed", sans-serif;
+
+  /* Marca */
+  --color-brand: #2C7A73;
+  --color-brand-deep: #13312E;
+  --color-brand-orange: #E8843A;
+  --color-brand-light: #DCEBE8;
+
+  /* Neutros */
+  --color-concrete: #E9ECEF;
+  --color-surface: #FFFFFF;
+  --color-raised: #F5F6F8;
+  --color-line: #D6DBE0;
+  --color-line-strong: #C3C9D0;
+  --color-ink: #15171A;
+  --color-ink-2: #4A5058;
+  --color-ink-3: #7E858E;
+  --color-graphite: #1F2226;
+
+  /* Status */
+  --color-ok: #12804A;
+  --color-ok-bg: #DCF2E5;
+  --color-warn: #A86400;
+  --color-warn-bg: #FFEFD2;
+  --color-danger: #C9241C;
+  --color-danger-bg: #FBE2DF;
+
+  /* Coleiras dos pets */
+  --color-collar-laranja: #EC6A25;
+  --color-collar-cobalto: #2B4FE0;
+  --color-collar-mostarda: #E5AA2E;
+  --color-collar-magenta: #DF1F7A;
+  --color-collar-turquesa: #00A39E;
+  --color-missing: #FFE500; /* exclusivo de pet desaparecido */
+
+  /* Tipografia */
+  --text-display: 84px;
+  --text-display--letter-spacing: -0.035em;
+  --text-h1: 28px;
+  --text-h1--letter-spacing: -0.025em;
+  --text-h2: 21px;
+  --text-h3: 17px;
+  --text-body: 16px;
+  --text-body--line-height: 24px;
+  --text-support: 14px;
+  --text-caption: 12px;
+
+  /* Raios */
+  --radius-tag: 4px;
+  --radius-control-sm: 10px;
+  --radius-control: 12px;
+  --radius-panel: 16px;
+  --radius-sheet: 22px;
+}
+
+body {
+  @apply bg-concrete font-sans text-body text-ink antialiased;
+}
