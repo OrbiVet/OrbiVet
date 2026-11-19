@@ -1,11 +1,15 @@
 package br.com.orbivet.backend.modules.usuario.controller;
 
 import br.com.orbivet.backend.modules.usuario.dto.CreateUsuarioRequest;
+import br.com.orbivet.backend.modules.usuario.dto.UpdateUsuarioRequest;
 import br.com.orbivet.backend.modules.usuario.dto.UsuarioResponse;
 import br.com.orbivet.backend.modules.usuario.service.UsuarioService;
+
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -34,5 +38,24 @@ public class UsuarioController {
     @GetMapping("/{id}")
     public UsuarioResponse findById(@PathVariable Long id) {
         return service.findById(id);
+    }
+
+
+    @PutMapping("/{id}")
+    public UsuarioResponse update(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateUsuarioRequest request,
+            Principal principal
+    ) {
+        return service.update(id, request, principal);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void delete(
+            @PathVariable Long id,
+            Principal principal
+    ) {
+        service.solicitarExclusao(id, principal);
     }
 }

@@ -23,6 +23,9 @@ public class Usuario {
     @Column(name = "criado_em", nullable = false, updatable = false)
     private LocalDateTime criadoEm;
 
+    @Column(name = "exclusao_solicitada_em")
+    private LocalDateTime exclusaoSolicitadaEm;
+
     @PrePersist
     protected void onCreate() {
         if (criadoEm == null) {
@@ -60,5 +63,15 @@ public class Usuario {
 
     public LocalDateTime getCriadoEm() {
         return criadoEm;
+    }
+
+    public LocalDateTime getExclusaoSolicitadaEm() {
+        return exclusaoSolicitadaEm;
+    }
+
+    public void solicitarExclusao() {
+        if (exclusaoSolicitadaEm == null) {
+            exclusaoSolicitadaEm = LocalDateTime.now();
+        }
     }
 }
