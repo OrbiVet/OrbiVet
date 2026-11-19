@@ -9,17 +9,19 @@ interface FieldShellProps {
   error?: string
   disabled?: boolean
   icon?: ReactNode
+  pill?: boolean
   className?: string
   children: ReactNode
 }
 
-function FieldShell({ id, label, hint, error, disabled, icon, className, children }: FieldShellProps) {
+function FieldShell({ id, label, hint, error, disabled, icon, pill, className, children }: FieldShellProps) {
   return (
-    <div className={cx('flex flex-col gap-1.5', className)}>
+    <div className={cx('flex flex-col gap-2', className)}>
       <label htmlFor={id} className="text-caption font-semibold text-ink">{label}</label>
       <div
         className={cx(
-          'relative flex h-11 items-center gap-2 rounded-control border px-3.5 transition-colors',
+          'relative flex items-center gap-2 border transition-colors',
+          pill ? 'h-14 rounded-full px-5' : 'h-11 rounded-control px-3.5',
           error
             ? 'border-danger bg-surface'
             : disabled
@@ -47,27 +49,28 @@ interface CommonProps {
   hint?: string
   error?: string
   icon?: ReactNode
+  pill?: boolean
 }
 
 export function TextField({
-  label, hint, error, icon, className, id, disabled, ...props
+  label, hint, error, icon, pill, className, id, disabled, ...props
 }: CommonProps & InputHTMLAttributes<HTMLInputElement>) {
   const autoId = useId()
   const inputId = id ?? autoId
   return (
-    <FieldShell id={inputId} label={label} hint={hint} error={error} icon={icon} disabled={disabled} className={className}>
+    <FieldShell id={inputId} label={label} hint={hint} error={error} icon={icon} pill={pill} disabled={disabled} className={className}>
       <input id={inputId} disabled={disabled} aria-invalid={!!error} className={control} {...props} />
     </FieldShell>
   )
 }
 
 export function SelectField({
-  label, hint, error, icon, className, id, disabled, children, ...props
+  label, hint, error, icon, pill, className, id, disabled, children, ...props
 }: CommonProps & SelectHTMLAttributes<HTMLSelectElement>) {
   const autoId = useId()
   const selectId = id ?? autoId
   return (
-    <FieldShell id={selectId} label={label} hint={hint} error={error} icon={icon} disabled={disabled} className={className}>
+    <FieldShell id={selectId} label={label} hint={hint} error={error} icon={icon} pill={pill} disabled={disabled} className={className}>
       <select id={selectId} disabled={disabled} aria-invalid={!!error} className={cx(control, 'appearance-none pr-6')} {...props}>
         {children}
       </select>
