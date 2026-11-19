@@ -8,3 +8,4 @@ export const pets: Pet[] = [
 ]
 
 export const currentUser = { initials: 'MR', name: 'Marina Rocha' }
+export const counts = { alerts: 1, notifications: 3 }
