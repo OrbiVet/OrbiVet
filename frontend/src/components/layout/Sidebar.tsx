@@ -2,18 +2,9 @@ import {
   Bell, Calendar, HandHeart, HeartPulse, House, Map, PawPrint, Plus, Settings, ShieldCheck, Siren,
 } from 'lucide-react'
 import logo from '../../assets/logo.svg'
-import { pets } from '../../data/mock'
-import type { CollarColor } from '../../types/pet'
+import { counts, pets } from '../../data/mock'
+import { PetAvatar } from '../ui/PetAvatar'
 import { NavItem } from './NavItem'
-
-// Classes completas: o Tailwind não reconhece nomes de classe montados dinamicamente
-const collarBorder: Record<CollarColor, string> = {
-  laranja: 'border-collar-laranja',
-  cobalto: 'border-collar-cobalto',
-  mostarda: 'border-collar-mostarda',
-  magenta: 'border-collar-magenta',
-  turquesa: 'border-collar-turquesa',
-}
 
 export function Sidebar() {
   return (
@@ -32,7 +23,7 @@ export function Sidebar() {
         <NavItem icon={HeartPulse} label="Saúde" />
         <NavItem icon={Calendar} label="Agenda" />
         <NavItem icon={Map} label="Mapa Pet" />
-        <NavItem icon={Siren} label="Alertas" badge={1} />
+        <NavItem icon={Siren} label="Alertas" badge={counts.alerts} />
         <NavItem icon={HandHeart} label="Causa animal" />
       </nav>
 
@@ -41,9 +32,7 @@ export function Sidebar() {
         {pets.map((pet) => (
           <li key={pet.id}>
             <a href="#" className="flex h-11 items-center gap-2.5 rounded-control px-2 hover:bg-raised">
-              <span className={`grid size-9 place-items-center rounded-full border-2 ${collarBorder[pet.collar]}`}>
-                <img src={pet.photo} alt="" className="size-6.5 rounded-full object-cover" />
-              </span>
+              <PetAvatar pet={pet} />
               <span className="text-support font-semibold text-ink">{pet.name}</span>
             </a>
           </li>
@@ -51,7 +40,7 @@ export function Sidebar() {
       </ul>
 
       <div className="mt-auto flex flex-col gap-0.5 border-t border-line pt-2.5">
-        <NavItem icon={Bell} label="Notificações" badge={3} />
+        <NavItem icon={Bell} label="Notificações" badge={counts.notifications} />
         <NavItem icon={ShieldCheck} label="Privacidade" />
         <NavItem icon={Settings} label="Configurações" />
       </div>
