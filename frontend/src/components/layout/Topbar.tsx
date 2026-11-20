@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react'
 import { Bell, Search } from 'lucide-react'
+import { Link } from 'react-router'
 import { currentUser } from '../../data/mock'
+import { paths } from '../../routes/paths'
 
 interface TopbarProps {
   breadcrumb?: string
@@ -22,12 +24,20 @@ export function Topbar({ breadcrumb, title, actions }: TopbarProps) {
             <Search size={18} />
             <input placeholder="Buscar" className="flex-1 bg-transparent text-support outline-none placeholder:text-ink-3" />
           </label>
-          <button className="grid size-11 place-items-center rounded-full border border-line bg-surface text-ink-2" aria-label="Notificações">
+          <Link
+            to={paths.notificacoes}
+            className="grid size-11 place-items-center rounded-full border border-line bg-surface text-ink-2"
+            aria-label="Notificações"
+          >
             <Bell size={20} />
-          </button>
-          <span className="grid size-11 place-items-center rounded-full bg-brand-deep text-support font-bold text-white">
+          </Link>
+          <Link
+            to={paths.configuracoes}
+            className="grid size-11 place-items-center rounded-full bg-brand-deep text-support font-bold text-white"
+            aria-label={`Configurações de ${currentUser.name}`}
+          >
             {currentUser.initials}
-          </span>
+          </Link>
         </div>
       )}
     </header>
