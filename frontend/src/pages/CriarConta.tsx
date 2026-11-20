@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { HandHeart, Lock, PawPrint, Stethoscope, Store, type LucideIcon } from 'lucide-react'
+import { Link, useNavigate } from 'react-router'
 import heroImg from '../assets/criar-conta.jpg'
 import logo from '../assets/logo.svg'
 import { TextField } from '../components/ui'
 import { cx } from '../lib/cx'
+import { paths } from '../routes/paths'
 
 const roles: { label: string; Icon: LucideIcon }[] = [
   { label: 'Tutor', Icon: PawPrint },
@@ -13,6 +15,7 @@ const roles: { label: string; Icon: LucideIcon }[] = [
 ]
 
 export function CriarConta() {
+  const navigate = useNavigate()
   const [role, setRole] = useState('Tutor') // só visual: destaca o perfil escolhido
 
   return (
@@ -29,7 +32,14 @@ export function CriarConta() {
       </aside>
 
       <main className="flex items-center justify-center px-6 py-12">
-        <form className="flex w-full max-w-115 flex-col gap-4.5" onSubmit={(e) => e.preventDefault()}>
+        <form
+          className="flex w-full max-w-115 flex-col gap-4.5"
+          onSubmit={(e) => {
+            e.preventDefault()
+            // Ainda não envia nada: depois do cadastro o tutor já cadastra o primeiro pet
+            navigate(paths.novoPet)
+          }}
+        >
           <header>
             <h1 className="font-tag text-[64px] leading-none text-brand-deep uppercase">Criar conta</h1>
             <p className="mt-4 text-body text-ink-2">Pedimos só o necessário para começar.</p>
@@ -77,8 +87,8 @@ export function CriarConta() {
           <label className="flex items-center gap-2.5 text-support text-ink-2">
             <input type="checkbox" defaultChecked className="size-5.5 accent-brand-deep" />
             <span>
-              Li e aceito os <a href="#" className="text-ink underline">Termos</a> e a{' '}
-              <a href="#" className="text-ink underline">Política de Privacidade</a>.
+              Li e aceito os <Link to={paths.termos} className="text-ink underline">Termos</Link> e a{' '}
+              <Link to={paths.politicaPrivacidade} className="text-ink underline">Política de Privacidade</Link>.
             </span>
           </label>
 
@@ -90,7 +100,7 @@ export function CriarConta() {
           </button>
 
           <p className="text-center text-support text-ink-2">
-            Já tem conta? <a href="#" className="font-bold text-brand-deep underline">Entrar</a>
+            Já tem conta? <Link to={paths.entrar} className="font-bold text-brand-deep underline">Entrar</Link>
           </p>
         </form>
       </main>
