@@ -1,0 +1,196 @@
+# OrbiVet — CI de Pull Requests
+# Caminho no repositório: .github/workflows/ci.yml
+#
+# Supõe um monorepo com as pastas abaixo. Se os nomes forem outros,
+# ajuste o bloco "filters" do job "changes" e os "working-directory".
+#   backend/  -> Java + Spring Boot (Maven ou Gradle, detectado automaticamente)
+#   web/      -> React + TypeScript
+#   mobile/   -> React Native + Expo
+
+name: OrbiVet CI
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main]
+  workflow_dispatch: # permite rodar manualmente pela aba Actions
+
+# Cancela execuções antigas do mesmo PR/branch quando chega um push novo
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  # ------------------------------------------------------------------
+  # Confere se a branch do PR segue o padrão tipo/KAN-<número>-<descrição>
+  # ------------------------------------------------------------------
+  branch-name:
+    name: Padrão de branch
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validar nome da branch
+        env:
+          BRANCH: ${{ github.head_ref }}
+        run: |
+          PADRAO='^(feat|fix|chore|refactor|docs|test|hotfix)/KAN-[0-9]+-[a-z0-9-]+$'
+          if [[ "$BRANCH" =~ $PADRAO ]]; then
+            echo "✅ Branch '$BRANCH' segue o padrão."
+          else
+            echo "::error::A branch '$BRANCH' não segue o padrão tipo/KAN-<número>-<descricao> (ex.: feat/KAN-73-telas-principais)."
+            exit 1
+          fi
+
+  # ------------------------------------------------------------------
+  # Descobre quais partes do projeto mudaram, para não rodar tudo sempre
+  # ------------------------------------------------------------------
+  changes:
+    name: Detectar alterações
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      web: ${{ steps.filter.outputs.web }}
+      mobile: ${{ steps.filter.outputs.mobile }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+              - '.github/workflows/**'
+            web:
+              - 'web/**'
+              - '.github/workflows/**'
+            mobile:
+              - 'mobile/**'
+              - '.github/workflows/**'
+
+  # ------------------------------------------------------------------
+  # Backend: build + testes unitários e de integração com PostgreSQL
+  # ------------------------------------------------------------------
+  backend:
+    name: Backend (Spring Boot)
+    needs: changes
+    if: needs.changes.outputs.backend == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: orbivet
+          POSTGRES_PASSWORD: orbivet
+          POSTGRES_DB: orbivet_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U orbivet"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      SPRING_PROFILES_ACTIVE: test
+      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/orbivet_test
+      SPRING_DATASOURCE_USERNAME: orbivet
+      SPRING_DATASOURCE_PASSWORD: orbivet
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Cache de dependências (Maven/Gradle)
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.m2/repository
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-java-${{ hashFiles('backend/**/pom.xml', 'backend/**/*.gradle*', 'backend/**/gradle-wrapper.properties') }}
+          restore-keys: ${{ runner.os }}-java-
+
+      - name: Build e testes
+        run: |
+          if [ -f mvnw ]; then
+            chmod +x mvnw
+            ./mvnw -B verify
+          elif [ -f gradlew ]; then
+            chmod +x gradlew
+            ./gradlew build --no-daemon
+          else
+            echo "::error::Nenhum mvnw ou gradlew encontrado em backend/."
+            exit 1
+          fi
+
+  # ------------------------------------------------------------------
+  # Web: lint, checagem de tipos, testes e build
+  # ------------------------------------------------------------------
+  web:
+    name: Web (React + TS)
+    needs: changes
+    if: needs.changes.outputs.web == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    env:
+      CI: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - name: Lint
+        run: npm run lint --if-present
+      - name: Checagem de tipos
+        run: npx tsc --noEmit
+      - name: Testes
+        run: npm test --if-present
+      - name: Build
+        run: npm run build
+
+  # ------------------------------------------------------------------
+  # Mobile: lint, checagem de tipos, testes e diagnóstico do Expo
+  # (sem build nativo aqui — isso fica para um workflow de EAS por tag)
+  # ------------------------------------------------------------------
+  mobile:
+    name: Mobile (Expo)
+    needs: changes
+    if: needs.changes.outputs.mobile == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    env:
+      CI: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - run: npm ci
+      - name: Lint
+        run: npm run lint --if-present
+      - name: Checagem de tipos
+        run: npx tsc --noEmit
+      - name: Testes
+        run: npm test --if-present
+      - name: Expo Doctor
+        run: npx expo-doctor
+        continue-on-error: true # só avisa por enquanto; remova quando o projeto estiver estável
